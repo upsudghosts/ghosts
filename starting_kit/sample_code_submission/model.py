@@ -14,9 +14,16 @@ from sklearn.preprocessing import StandardScaler
 import pickle 
 
 from sklearn.tree import DecisionTreeRegressor
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors.nearest_centroid import NearestCentroid
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import Ridge
+
+from lifelines import CoxPHFitter
+from lifelines.datasets import load_rossi
 
 class model(BaseEstimator):
-    def __init__(self):
+    def __init__(self, what):
         '''
         This constructor is supposed to initialize data members.
         Use triple quotes for function documentation.
@@ -26,7 +33,16 @@ class model(BaseEstimator):
         self.num_labels=1
         self.is_trained=False
         # Baseline decision tree :
-        self.baseline_clf = DecisionTreeRegressor(max_depth=1)
+        if what == 1:
+            self.baseline_clf = GaussianNB()
+        elif what == 2:
+            self.baseline_clf = Ridge()
+        elif what == 3:
+            self.baseline_clf = DecisionTreeRegressor(max_depth=4)
+        elif what == 4:
+            self.baseline_clf = RandomForestClassifier()
+        elif what == 5:
+            self.baseline_clf = NearestCentroid()
 
     def fit(self, X, y):
         '''
@@ -42,6 +58,7 @@ class model(BaseEstimator):
         Use data_converter.convert_to_num() to convert to the category number format.
         For regression, labels are continuous values.
         '''
+        print(y.shape)
         self.num_train_samples = X.shape[0]
         if X.ndim>1: self.num_feat = X.shape[1]
         print("FIT: dim(X)= [{:d}, {:d}]".format(self.num_train_samples, self.num_feat))

@@ -123,6 +123,11 @@ class TobitModel:
         self.intercept_ = None
         self.sigma_ = None
 
+        self.num_train_samples = 0
+        self.num_feat = 1
+        self.num_labels = 1
+        self.is_trained = False
+
     def fit(self, x, y, cens, verbose=False):
         """
         Fit a maximum-likelihood Tobit regression
@@ -134,7 +139,9 @@ class TobitModel:
         """
         x_copy = x.copy()
         if self.fit_intercept:
+            #x_copy = np.c_[np.ones(np.shape(x_copy)[0]), x_copy]
             x_copy.insert(0, 'intercept', 1.0)
+            #np.insert(x_copy, 0, 'intercept', 1)
         else:
             x_copy.scale(with_mean=True, with_std=False, copy=False)
         init_reg = LinearRegression(fit_intercept=False).fit(x_copy, y)

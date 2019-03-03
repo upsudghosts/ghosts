@@ -22,6 +22,9 @@ from sklearn.linear_model import Ridge
 from lifelines import CoxPHFitter
 from lifelines.datasets import load_rossi
 
+import tobit
+
+
 class model(BaseEstimator):
     def __init__(self, what):
         '''
@@ -58,7 +61,7 @@ class model(BaseEstimator):
         Use data_converter.convert_to_num() to convert to the category number format.
         For regression, labels are continuous values.
         '''
-        print(y.shape)
+
         self.num_train_samples = X.shape[0]
         if X.ndim>1: self.num_feat = X.shape[1]
         print("FIT: dim(X)= [{:d}, {:d}]".format(self.num_train_samples, self.num_feat))

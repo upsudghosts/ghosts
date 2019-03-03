@@ -24,7 +24,6 @@ from lifelines.datasets import load_rossi
 
 import tobit
 
-
 class model(BaseEstimator):
     def __init__(self, what):
         '''
@@ -34,7 +33,9 @@ class model(BaseEstimator):
         self.num_train_samples=0
         self.num_feat=1
         self.num_labels=1
-        self.is_trained=False
+        self.is_trained= False
+        self.what = what
+        
         # Baseline decision tree :
         if what == 1:
             self.baseline_clf = GaussianNB()
@@ -46,6 +47,8 @@ class model(BaseEstimator):
             self.baseline_clf = RandomForestClassifier()
         elif what == 5:
             self.baseline_clf = NearestCentroid()
+        elif what == 6:
+            self.baseline_clf = tobit.TobitModel()
 
     def fit(self, X, y):
         '''
@@ -77,9 +80,14 @@ class model(BaseEstimator):
         # We get the target for the regression (y[:,1] contains the events)
         # y[:,0] is a slicing method, it takes all the lines ':' , and only the first column '0'
         # of the 2-d ndarray y
-        y = y[:,0]
+
         # Once we have our regression target, we simply fit our model :
-        self.baseline_clf.fit(X, y)
+        if self.what == 6:
+            self.baseline_clf.fit(X, y)
+        else:
+            y1 = y[:,0]
+            self.baseline_clf.fit(X, y1)
+
         self.is_trained=True
 
     def predict(self, X):

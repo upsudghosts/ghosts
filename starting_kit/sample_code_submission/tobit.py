@@ -16,7 +16,7 @@ def split_left_right_censored(x, y, cens):
         warnings.warn("No censored observations; use regression methods for uncensored data")
     xs = []
     ys = []
-
+    x = pd.DataFrame(x)
     for value in [-1, 0, 1]:
         if value in counts:
             split = cens == value
@@ -128,7 +128,7 @@ class TobitModel:
         self.num_labels = 1
         self.is_trained = False
 
-    def fit(self, x, y, cens, verbose=False):
+    def fit(self, x, Y, verbose=False):
         """
         Fit a maximum-likelihood Tobit regression
         :param x: Pandas DataFrame (n_samples, n_features): Data
@@ -137,10 +137,14 @@ class TobitModel:
         :param verbose: boolean, show info from minimization
         :return:
         """
+
+        y = pd.Series(Y[:,0])
+        cens = pd.Series(Y[:,1])
+
         x_copy = x.copy()
         if self.fit_intercept:
-            #x_copy = np.c_[np.ones(np.shape(x_copy)[0]), x_copy]
-            x_copy.insert(0, 'intercept', 1.0)
+            x_copy = np.c_[np.ones(np.shape(x_copy)[0]), x_copy]
+            #x_copy.insert(0, 'intercept', 1.0)
             #np.insert(x_copy, 0, 'intercept', 1)
         else:
             x_copy.scale(with_mean=True, with_std=False, copy=False)

@@ -36,7 +36,7 @@ class model(BaseEstimator):
         self.is_trained= False
         
         self.what = 3
-        
+
         # Baseline decision tree :
         if self.what == 1:
             self.baseline_clf = GaussianNB()
@@ -87,12 +87,12 @@ class model(BaseEstimator):
         # Once we have our regression target, we simply fit our model :
         if self.what == 6:
             self.baseline_clf.fit(X, y)
-        elif self.what == 7:
+        elif self.what == 7: # doesnt work for now
             X = pd.DataFrame(X)
-            self.baseline_clf.fit(X, duration_col='week')
+            self.baseline_clf.fit(X, duration_col='day')
         else:
             y1 = y[:,0]
-            self.baseline_clf.fit(X, y1)
+            self.baseline_clf.fit(X, y1) # or y1
 
         self.is_trained=True
 

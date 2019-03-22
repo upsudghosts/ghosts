@@ -25,7 +25,7 @@ from lifelines.datasets import load_rossi
 import tobit
 
 class model(BaseEstimator):
-    def __init__(self, what):
+    def __init__(self):
         '''
         This constructor is supposed to initialize data members.
         Use triple quotes for function documentation.
@@ -34,21 +34,24 @@ class model(BaseEstimator):
         self.num_feat=1
         self.num_labels=1
         self.is_trained= False
-        self.what = what
+        
+        self.what = 3
         
         # Baseline decision tree :
-        if what == 1:
+        if self.what == 1:
             self.baseline_clf = GaussianNB()
-        elif what == 2:
+        elif self.what == 2:
             self.baseline_clf = Ridge()
-        elif what == 3:
+        elif self.what == 3:
             self.baseline_clf = DecisionTreeRegressor(max_depth=4)
-        elif what == 4:
+        elif self.what == 4:
             self.baseline_clf = RandomForestClassifier()
-        elif what == 5:
+        elif self.what == 5:
             self.baseline_clf = NearestCentroid()
-        elif what == 6:
+        elif self.what == 6:
             self.baseline_clf = tobit.TobitModel()
+        elif self.what == 7:
+            self.baseline_clf = CoxPHFitter()
 
     def fit(self, X, y):
         '''
@@ -84,6 +87,9 @@ class model(BaseEstimator):
         # Once we have our regression target, we simply fit our model :
         if self.what == 6:
             self.baseline_clf.fit(X, y)
+        elif self.what == 7:
+            X = pd.DataFrame(X)
+            self.baseline_clf.fit(X, duration_col='week')
         else:
             y1 = y[:,0]
             self.baseline_clf.fit(X, y1)

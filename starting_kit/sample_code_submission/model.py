@@ -18,6 +18,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors.nearest_centroid import NearestCentroid
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import Ridge
+from sklearn.ensemble import GradientBoostingRegressor
 
 from lifelines import CoxPHFitter
 from lifelines.datasets import load_rossi
@@ -35,7 +36,7 @@ class model(BaseEstimator):
         self.num_labels=1
         self.is_trained= False
         
-        self.what = 3
+        self.what = 8
 
         # Baseline decision tree :
         if self.what == 1:
@@ -52,6 +53,8 @@ class model(BaseEstimator):
             self.baseline_clf = tobit.TobitModel()
         elif self.what == 7:
             self.baseline_clf = CoxPHFitter()
+        elif self.what == 8:
+            self.baseline_clf = GradientBoostingRegressor()
 
     def fit(self, X, y):
         '''

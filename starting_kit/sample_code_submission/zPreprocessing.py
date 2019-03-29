@@ -1,8 +1,9 @@
-filename1 = "public_data/Mortality_train.data"
-dataset = np.loadtxt(filename1, delimiter=" ")
+
 from sys import argv
 import numpy as np
 from sklearn.base import BaseEstimator
+filename1 = "public_data/Mortality_train.data"
+dataset = np.loadtxt(filename1, delimiter=" ")
 #INITIALISER X POUR TESTER
 class zePreproDeLaMort(BaseEstimator):
     
@@ -34,11 +35,11 @@ class zePreproDeLaMort(BaseEstimator):
         return transform
 
 
-
+    """
     def testing():
         prepro = zePreproDeLaMort()
         fitTab = prepro.fit(dataset)
         transformTab = prepro.transform(fitTab)
         #print(transformTab[9:12])
     testing()
-    
+    """

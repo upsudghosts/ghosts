@@ -177,4 +177,4 @@ class TobitModel:
 
     def score(self, x, y, scoring_function=mean_absolute_error):
         y_pred = np.dot(x, self.coef_)
-return scoring_function(y, y_pred)
+        return scoring_function(y, y_pred)

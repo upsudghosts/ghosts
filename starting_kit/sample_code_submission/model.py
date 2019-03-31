@@ -19,14 +19,17 @@ from sklearn.neighbors.nearest_centroid import NearestCentroid
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import Ridge
 from sklearn.ensemble import GradientBoostingRegressor
-
+from sklearn.linear_model import LinearRegression
 from lifelines import CoxPHFitter
-from lifelines.datasets import load_rossi
 
+from lifelines.datasets import load_rossi
+from sklearn.decomposition import PCA
+
+import drop_censored as dc
 import tobit
 
 class model(BaseEstimator):
-    def __init__(self):
+    def __init__(self, what=8, max_depth=4):
         '''
         This constructor is supposed to initialize data members.
         Use triple quotes for function documentation.
@@ -35,8 +38,8 @@ class model(BaseEstimator):
         self.num_feat=1
         self.num_labels=1
         self.is_trained= False
+        self.what = what
         
-        self.what = 8
 
         # Baseline decision tree :
         if self.what == 1:
@@ -51,8 +54,10 @@ class model(BaseEstimator):
             self.baseline_clf = NearestCentroid()
         elif self.what == 6:
             self.baseline_clf = tobit.TobitModel()
-        elif self.what == 7:
-            self.baseline_clf = CoxPHFitter()
+        elif self.what = 7:
+            self.baseline_clf = LinearRegression()
+        #elif self.what == 7:
+         #   self.baseline_clf = CoxPHFitter()
         elif self.what == 8:
             self.baseline_clf = GradientBoostingRegressor()
 
@@ -90,13 +95,17 @@ class model(BaseEstimator):
         # Once we have our regression target, we simply fit our model :
         if self.what == 6:
             self.baseline_clf.fit(X, y)
-        elif self.what == 7: # doesnt work for now
-            X = pd.DataFrame(X)
-            self.baseline_clf.fit(X, duration_col='day')
+        #elif self.what == 7: # doesnt work for now
+         #   X = pd.DataFrame(X)
+          #  self.baseline_clf.fit(X, duration_col='day')
         else:
             y1 = y[:,0]
-            self.baseline_clf.fit(X, y1) # or y1
-
+            #x,y = dc.drop_censored(X,y)
+            #pca = PCA(n_components = 1)
+            #x_prime = pca.fit_transform(x)
+            #self.pca = pca
+            #self.baseline_clf.fit(x_prime,y[:,0]) # or y[:,0] ///y1
+            self.baseline_clf.fit(X,y1)
         self.is_trained=True
 
     def predict(self, X):

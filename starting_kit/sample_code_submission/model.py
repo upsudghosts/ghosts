@@ -38,10 +38,12 @@ class model(BaseEstimator):
         self.num_feat=1
         self.num_labels=1
         self.is_trained= False
+
+        # Pour choisir la regression
         self.what = what
         
 
-        # Baseline decision tree :
+        # Choix de la regression
         if self.what == 1:
             self.baseline_clf = GaussianNB()
         elif self.what == 2:
@@ -54,7 +56,7 @@ class model(BaseEstimator):
             self.baseline_clf = NearestCentroid()
         elif self.what == 6:
             self.baseline_clf = tobit.TobitModel()
-        elif self.what = 7:
+        elif self.what == 7:
             self.baseline_clf = LinearRegression()
         #elif self.what == 7:
          #   self.baseline_clf = CoxPHFitter()
@@ -94,12 +96,12 @@ class model(BaseEstimator):
 
         # Once we have our regression target, we simply fit our model :
         if self.what == 6:
-            self.baseline_clf.fit(X, y)
+            self.baseline_clf.fit(X, y) # On prend en compte les donnees censurees
         #elif self.what == 7: # doesnt work for now
          #   X = pd.DataFrame(X)
           #  self.baseline_clf.fit(X, duration_col='day')
         else:
-            y1 = y[:,0]
+            y1 = y[:,0] # On ne regarde pas si les donnees sont censurees ou non
             #x,y = dc.drop_censored(X,y)
             #pca = PCA(n_components = 1)
             #x_prime = pca.fit_transform(x)

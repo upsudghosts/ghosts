@@ -102,11 +102,11 @@ class model(BaseEstimator):
           #  self.baseline_clf.fit(X, duration_col='day')
         else:
             y1 = y[:,0] # On ne regarde pas si les donnees sont censurees ou non
-            #x,y = dc.drop_censored(X,y)
-            #pca = PCA(n_components = 1)
-            #x_prime = pca.fit_transform(x)
-            #self.pca = pca
-            #self.baseline_clf.fit(x_prime,y[:,0]) # or y[:,0] ///y1
+            x,y = dc.drop_censored(X,y)
+            pca = PCA(n_components = 1)
+            x_prime = pca.fit_transform(x)
+            self.pca = pca
+            self.baseline_clf.fit(x_prime,y[:,0]) # or y[:,0] ///y1
             self.baseline_clf.fit(X,y1)
         self.is_trained=True
 

@@ -1,17 +1,18 @@
-'''
-Sample predictive model.
-You must supply at least 4 methods:
-- fit: trains the model.
-- predict: uses the model to perform predictions.
-- save: saves the model.
-- load: reloads the model.
-'''
+"""
+Team Ghosts: TheProphete modele with preprocessing
+
+"""
+
 import numpy as np   # We recommend to use numpy arrays
 from os.path import isfile
 from sklearn.base import BaseEstimator
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 import pickle 
+
+"""
+Crucial imports for our model
+"""
 
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.naive_bayes import GaussianNB
@@ -20,16 +21,47 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import Ridge
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression
-from lifelines import CoxPHFitter
-
-from lifelines.datasets import load_rossi
-from sklearn.decomposition import PCA
-
-import drop_censored as dc
+#from lifelines import CoxPHFitter
 import tobit
 
+"""
+Preprocessing imports
+"""
+
+from sklearn.decomposition import PCA
+#import drop_censored as dc
+from sklearn.pipeline import Pipeline
+
+
+#filename1 = "public_data/Mortality_train.data"
+#dataset = np.loadtxt(filename1, delimiter=" ")
+
+"""
+Preprocessing Class using PCA and our function drop_censored
+"""
+
+class Preprocessing(BaseEstimator):
+
+    def __init__(self, n_components=5):
+        self.pca = PCA(n_components = n_components)
+
+    def fit(self, X, y=None):
+        return self.pca.fit(X, y)
+
+    def fit_transform(self, X, y=None):
+        return self.pca.fit_transform(X)
+
+    def transform(self, X, y=None):
+        return self.pca.transform(X)
+
+"""
+Model Class aka TheProphete :)
+
+"""
+
 class model(BaseEstimator):
-    def __init__(self, what=8, max_depth=4):
+
+    def __init__( self, n_components = 5, what=8, max_depth = 4, apply_pca = False):
         '''
         This constructor is supposed to initialize data members.
         Use triple quotes for function documentation.
@@ -38,30 +70,54 @@ class model(BaseEstimator):
         self.num_feat=1
         self.num_labels=1
         self.is_trained= False
+        self.apply_pca = apply_pca
+        self.n_components = n_components
+        self.max_depth = max_depth
 
         # Pour choisir la regression
         self.what = what
-        
 
-        # Choix de la regression
-        if self.what == 1:
-            self.baseline_clf = GaussianNB()
-        elif self.what == 2:
-            self.baseline_clf = Ridge()
-        elif self.what == 3:
-            self.baseline_clf = DecisionTreeRegressor(max_depth=4)
-        elif self.what == 4:
-            self.baseline_clf = RandomForestClassifier()
-        elif self.what == 5:
-            self.baseline_clf = NearestCentroid()
-        elif self.what == 6:
-            self.baseline_clf = tobit.TobitModel()
-        elif self.what == 7:
-            self.baseline_clf = LinearRegression()
-        #elif self.what == 7:
-         #   self.baseline_clf = CoxPHFitter()
-        elif self.what == 8:
-            self.baseline_clf = GradientBoostingRegressor()
+        if self.apply_pca :
+            # Choix de la regression
+            if self.what == 1:
+                self.baseline_clf = Pipeline([('Prepro', Preprocessing(n_components)), ('GaussianNB', GaussianNB())])
+            elif self.what == 2:
+                self.baseline_clf = Pipeline([('Prepro', Preprocessing(n_components)), ('Ridge', Ridge())])
+            elif self.what == 3:
+                self.baseline_clf = Pipeline([('Prepro', Preprocessing(n_components)),('DecisionTreeRegressor', DecisionTreeRegressor(max_depth=4))])
+            elif self.what == 4:
+                self.baseline_clf = Pipeline([('Prepro', Preprocessing(n_components)), ('RandomForestClassifier', RandomForestClassifier())])
+            elif self.what == 5:
+                self.baseline_clf = Pipeline([('Prepro', Preprocessing(n_components)), (' NearestCentroid', NearestCentroid())])
+            elif self.what == 6:
+                self.baseline_clf = Pipeline([('Prepro', Preprocessing(n_components)), (' Tobit', tobit.TobitModel())])
+            elif self.what == 7:
+                self.baseline_clf = Pipeline([('Prepro', Preprocessing(n_components)), ('LinearRegression', LinearRegression())])
+            #elif self.what == 7:
+            #   self.baseline_clf = CoxPHFitter()
+            elif self.what == 8:
+                self.baseline_clf = Pipeline([('Prepro', Preprocessing(n_components)),('GradientBoostingRegressor', GradientBoostingRegressor(max_depth =4))])
+        else:
+
+            if self.what == 1:
+                self.baseline_clf = GaussianNB()
+            elif self.what == 2:
+                self.baseline_clf = Ridge()
+            elif self.what == 3:
+                self.baseline_clf = DecisionTreeRegressor(max_depth=4)
+            elif self.what == 4:
+                self.baseline_clf = RandomForestClassifier()
+            elif self.what == 5:
+                self.baseline_clf = NearestCentroid()
+            elif self.what == 6:
+                self.baseline_clf = tobit.TobitModel()
+            elif self.what == 7:
+                self.baseline_clf = LinearRegression()
+            #elif self.what == 7:
+                #self.baseline_clf = CoxPHFitter()
+            elif self.what == 8:
+                self.baseline_clf = GradientBoostingRegressor(max_depth =4)
+
 
     def fit(self, X, y):
         '''
@@ -97,10 +153,12 @@ class model(BaseEstimator):
         # Once we have our regression target, we simply fit our model :
         if self.what == 6:
             self.baseline_clf.fit(X, y) # On prend en compte les donnees censurees
-        #elif self.what == 7: # doesnt work for now
-         #   X = pd.DataFrame(X)
-          #  self.baseline_clf.fit(X, duration_col='day')
+            self.is_trained = True
+            #elif self.what == 7: # doesnt work for now
+            #   X = pd.DataFrame(X)
+            #  self.baseline_clf.fit(X, duration_col='day')
         else:
+            """
             y1 = y[:,0] # On ne regarde pas si les donnees sont censurees ou non
             x,y = dc.drop_censored(X,y)
             pca = PCA(n_components = 1)
@@ -108,7 +166,10 @@ class model(BaseEstimator):
             self.pca = pca
             self.baseline_clf.fit(x_prime,y[:,0]) # or y[:,0] ///y1
             self.baseline_clf.fit(X,y1)
-        self.is_trained=True
+            """
+            y1 = y[:,0]
+            self.baseline_clf.fit(X,y1)
+            self.is_trained= True
 
     def predict(self, X):
         '''
@@ -122,6 +183,7 @@ class model(BaseEstimator):
         Scikit-learn also has a function predict-proba, we do not require it.
         The function predict eventually can return probabilities.
         '''
+
         num_test_samples = X.shape[0]
         if X.ndim>1: num_feat = X.shape[1]
         print("PREDICT: dim(X)= [{:d}, {:d}]".format(num_test_samples, num_feat))

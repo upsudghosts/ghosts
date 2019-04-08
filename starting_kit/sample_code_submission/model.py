@@ -29,7 +29,7 @@ Preprocessing imports
 """
 
 from sklearn.decomposition import PCA
-#import drop_censored as dc
+import drop_censored as dc
 from sklearn.pipeline import Pipeline
 
 
@@ -42,7 +42,7 @@ Preprocessing Class using PCA and our function drop_censored
 
 class Preprocessing(BaseEstimator):
 
-    def __init__(self, n_components=5):
+    def __init__(self, n_components=2):
         self.pca = PCA(n_components = n_components)
 
     def fit(self, X, y=None):
@@ -61,7 +61,7 @@ Model Class aka TheProphete :)
 
 class model(BaseEstimator):
 
-    def __init__( self, n_components = 5, what=8, max_depth = 4, apply_pca = False):
+    def __init__( self, n_components = 10, what=8, max_depth = 4, apply_pca = True):
         '''
         This constructor is supposed to initialize data members.
         Use triple quotes for function documentation.
@@ -96,9 +96,9 @@ class model(BaseEstimator):
             #elif self.what == 7:
             #   self.baseline_clf = CoxPHFitter()
             elif self.what == 8:
-                self.baseline_clf = Pipeline([('Prepro', Preprocessing(n_components)),('GradientBoostingRegressor', GradientBoostingRegressor(max_depth =4))])
-        else:
-
+                self.baseline_clf = Pipeline([('Prepro', Preprocessing(n_components)),('GradientBoostingRegressor', GradientBoostingRegressor(max_depth =4, max_features = n_components))])
+        
+        elif not self.apply_pca:
             if self.what == 1:
                 self.baseline_clf = GaussianNB()
             elif self.what == 2:
@@ -152,7 +152,8 @@ class model(BaseEstimator):
 
         # Once we have our regression target, we simply fit our model :
         if self.what == 6:
-            self.baseline_clf.fit(X, y) # On prend en compte les donnees censurees
+            x,y = dc.drop_censored(X,y)
+            self.baseline_clf.fit(x, y) # On prend en compte les donnees censurees
             self.is_trained = True
             #elif self.what == 7: # doesnt work for now
             #   X = pd.DataFrame(X)
@@ -167,8 +168,9 @@ class model(BaseEstimator):
             self.baseline_clf.fit(x_prime,y[:,0]) # or y[:,0] ///y1
             self.baseline_clf.fit(X,y1)
             """
+            x,y = dc.drop_censored(X,y)
             y1 = y[:,0]
-            self.baseline_clf.fit(X,y1)
+            self.baseline_clf.fit(x,y1)
             self.is_trained= True
 
     def predict(self, X):

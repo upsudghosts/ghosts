@@ -60,8 +60,9 @@ Model Class aka TheProphete :)
 """
 
 class model(BaseEstimator):
-
-    def __init__( self, n_components = 10, what=8, max_depth = 4, apply_pca = True):
+    
+    baseline_clf = Pipeline([('Prepro', Preprocessing()),('GradientBoostingRegressor', GradientBoostingRegressor(learning_rate=0.7, n_estimators=100, subsample=1.0, min_samples_split=2, min_samples_leaf=1, max_depth = 4, random_state=None))])
+    def __init__( self, n_components = 10, what=8, max_depth = 4, apply_pca = False):
         '''
         This constructor is supposed to initialize data members.
         Use triple quotes for function documentation.
@@ -84,9 +85,9 @@ class model(BaseEstimator):
             elif self.what == 2:
                 self.baseline_clf = Pipeline([('Prepro', Preprocessing(n_components)), ('Ridge', Ridge())])
             elif self.what == 3:
-                self.baseline_clf = Pipeline([('Prepro', Preprocessing(n_components)),('DecisionTreeRegressor', DecisionTreeRegressor(max_depth=4))])
+                self.baseline_clf = Pipeline([('Prepro', Preprocessing(n_components)),('DecisionTreeRegressor', DecisionTreeRegressor(max_depth=3))])
             elif self.what == 4:
-                self.baseline_clf = Pipeline([('Prepro', Preprocessing(n_components)), ('RandomForestClassifier', RandomForestClassifier())])
+                self.baseline_clf = Pipeline([('Prepro', Preprocessing(n_components)), ('RandomForestClassifier', RandomForestClassifier(n_estimators=100))])
             elif self.what == 5:
                 self.baseline_clf = Pipeline([('Prepro', Preprocessing(n_components)), (' NearestCentroid', NearestCentroid())])
             elif self.what == 6:
@@ -96,7 +97,7 @@ class model(BaseEstimator):
             #elif self.what == 7:
             #   self.baseline_clf = CoxPHFitter()
             elif self.what == 8:
-                self.baseline_clf = Pipeline([('Prepro', Preprocessing(n_components)),('GradientBoostingRegressor', GradientBoostingRegressor(max_depth =4, max_features = n_components))])
+                self.baseline_clf = Pipeline([('Prepro', Preprocessing(n_components)),('GradientBoostingRegressor', GradientBoostingRegressor( learning_rate=0.7, n_estimators=100, subsample=1.0, min_samples_split=2, min_samples_leaf=1, max_depth = 4, random_state=None))])
         
         elif not self.apply_pca:
             if self.what == 1:
@@ -104,7 +105,7 @@ class model(BaseEstimator):
             elif self.what == 2:
                 self.baseline_clf = Ridge()
             elif self.what == 3:
-                self.baseline_clf = DecisionTreeRegressor(max_depth=4)
+                self.baseline_clf = DecisionTreeRegressor(max_depth =3)
             elif self.what == 4:
                 self.baseline_clf = RandomForestClassifier()
             elif self.what == 5:
@@ -116,7 +117,7 @@ class model(BaseEstimator):
             #elif self.what == 7:
                 #self.baseline_clf = CoxPHFitter()
             elif self.what == 8:
-                self.baseline_clf = GradientBoostingRegressor(max_depth =4)
+                self.baseline_clf = GradientBoostingRegressor(learning_rate=0.7, n_estimators=100, subsample=1.0, min_samples_split=2, min_samples_leaf=1, max_depth = 4, random_state=None)
 
 
     def fit(self, X, y):
@@ -152,8 +153,8 @@ class model(BaseEstimator):
 
         # Once we have our regression target, we simply fit our model :
         if self.what == 6:
-            x,y = dc.drop_censored(X,y)
-            self.baseline_clf.fit(x, y) # On prend en compte les donnees censurees
+            #x,y = dc.drop_censored(X,y)
+            self.baseline_clf.fit(X, y) # On prend en compte les donnees censurees
             self.is_trained = True
             #elif self.what == 7: # doesnt work for now
             #   X = pd.DataFrame(X)
@@ -168,9 +169,9 @@ class model(BaseEstimator):
             self.baseline_clf.fit(x_prime,y[:,0]) # or y[:,0] ///y1
             self.baseline_clf.fit(X,y1)
             """
-            x,y = dc.drop_censored(X,y)
+            #x,y = dc.drop_censored(X,y)
             y1 = y[:,0]
-            self.baseline_clf.fit(x,y1)
+            self.baseline_clf.fit(X,y1)
             self.is_trained= True
 
     def predict(self, X):

@@ -61,7 +61,7 @@ Model Class aka TheProphete :)
 
 class model(BaseEstimator):
     
-    baseline_clf = Pipeline([('Prepro', Preprocessing()),('GradientBoostingRegressor', GradientBoostingRegressor(learning_rate=0.7, n_estimators=100, subsample=1.0, min_samples_split=2, min_samples_leaf=1, max_depth = 4, random_state=None))])
+    baseline_clf = Pipeline([('Prepro', Preprocessing()),('GradientBoostingRegressor', GradientBoostingRegressor(learning_rate=0.1, n_estimators=100, subsample=1.0, min_samples_split=2, min_samples_leaf=1, max_depth = 4, random_state=None))])
     def __init__( self, n_components = 10, what=8, max_depth = 4, apply_pca = False):
         '''
         This constructor is supposed to initialize data members.
@@ -117,7 +117,7 @@ class model(BaseEstimator):
             #elif self.what == 7:
                 #self.baseline_clf = CoxPHFitter()
             elif self.what == 8:
-                self.baseline_clf = GradientBoostingRegressor(learning_rate=0.7, n_estimators=100, subsample=1.0, min_samples_split=2, min_samples_leaf=1, max_depth = 4, random_state=None)
+                self.baseline_clf = GradientBoostingRegressor(learning_rate=0.1, n_estimators=100, subsample=1.0, min_samples_split=2, min_samples_leaf=1, max_depth = 4, random_state=None)
 
 
     def fit(self, X, y):

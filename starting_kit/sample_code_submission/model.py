@@ -20,6 +20,8 @@ from sklearn.neighbors.nearest_centroid import NearestCentroid
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import Ridge
 from sklearn.ensemble import GradientBoostingRegressor
+#from xgboost import XGBRegressor
+from sklearn.neural_network import MLPRegressor
 from sklearn.linear_model import LinearRegression
 #from lifelines import CoxPHFitter
 import tobit
@@ -42,7 +44,7 @@ Preprocessing Class using PCA and our function drop_censored
 
 class Preprocessing(BaseEstimator):
 
-    def __init__(self, n_components=2):
+    def __init__(self, n_components=10):
         self.pca = PCA(n_components = n_components)
 
     def fit(self, X, y=None):
@@ -60,9 +62,10 @@ Model Class aka TheProphete :)
 """
 
 class model(BaseEstimator):
-    
-    baseline_clf = Pipeline([('Prepro', Preprocessing()),('GradientBoostingRegressor', GradientBoostingRegressor(learning_rate=0.1, n_estimators=100, subsample=1.0, min_samples_split=2, min_samples_leaf=1, max_depth = 4, random_state=None))])
-    def __init__( self, n_components = 10, what=8, max_depth = 4, apply_pca = False):
+    """
+    baseline_clf = Pipeline([('Prepro', Preprocessing(n_components=10)),('GradientBoostingRegressor', GradientBoostingRegressor(learning_rate=0.1, n_estimators=100, subsample=1.0, min_samples_split=2, min_samples_leaf=1, max_depth = 4, random_state=None))])
+    """
+    def __init__( self, n_components = 10, what=8, max_depth = 3, apply_pca = False):
         '''
         This constructor is supposed to initialize data members.
         Use triple quotes for function documentation.
@@ -97,7 +100,9 @@ class model(BaseEstimator):
             #elif self.what == 7:
             #   self.baseline_clf = CoxPHFitter()
             elif self.what == 8:
-                self.baseline_clf = Pipeline([('Prepro', Preprocessing(n_components)),('GradientBoostingRegressor', GradientBoostingRegressor( learning_rate=0.7, n_estimators=100, subsample=1.0, min_samples_split=2, min_samples_leaf=1, max_depth = 4, random_state=None))])
+                self.baseline_clf = Pipeline([('Prepro', Preprocessing(n_components)),('GradientBoostingRegressor', GradientBoostingRegressor( learning_rate=0.7, n_estimators=100, subsample=1.0, min_samples_split=2, min_samples_leaf=1, max_depth = 3, random_state=None))])
+            #elif self.what == 9:
+             #   self.baseline_clf =Pipeline([('Prepro', Preprocessing(n_components)), ('XGBRegressor', MLPRegressor())])
         
         elif not self.apply_pca:
             if self.what == 1:
@@ -117,7 +122,9 @@ class model(BaseEstimator):
             #elif self.what == 7:
                 #self.baseline_clf = CoxPHFitter()
             elif self.what == 8:
-                self.baseline_clf = GradientBoostingRegressor(learning_rate=0.1, n_estimators=100, subsample=1.0, min_samples_split=2, min_samples_leaf=1, max_depth = 4, random_state=None)
+                self.baseline_clf = GradientBoostingRegressor(learning_rate=0.1, n_estimators=100, subsample=1.0, min_samples_split=2, min_samples_leaf=1, max_depth = 3, random_state=None)
+            #elif self.what == 9:
+             #   self.baseline_clf = MLPRegressor()
 
 
     def fit(self, X, y):
